@@ -7,6 +7,8 @@ This extension provides **syntax highlighting** and **code formatting** support 
 
 ## Features
 
+Based on https://linuxcnc.org/docs/html/gcode.html
+
 ### Syntax Highlighting
 - **G-code commands** (e.g., `G1`, `M3`)
 - **Control flow keywords** (e.g., `IF`, `WHILE`, `SUB`, `ENDIF`)
