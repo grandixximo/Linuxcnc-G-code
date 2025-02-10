@@ -1,0 +1,42 @@
+{
+  "name": "linuxcnc-g-code",
+  "displayName": "LinuxCNC G-Code",
+  "description": "Syntax Highlighting for LinuxCNC RS274 NGC G-Code with subroutine support",
+  "version": "1.0.0",
+  "engines": {
+    "vscode": "^1.96.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "main": "./formatter.js",
+  "contributes": {
+    "languages": [{
+      "id": "gcode",
+      "aliases": ["G-Code", "gcode"],
+      "extensions": [".ngc"],
+      "configuration": "./language-configuration.json"
+    }],
+    "grammars": [{
+      "language": "gcode",
+      "scopeName": "source.gcode",
+      "path": "./syntaxes/gcode.tmLanguage.json"
+    }],
+    "commands": [
+      {
+        "command": "extension.formatDocument",
+        "title": "Format G-code Document"
+      }
+    ]
+  },
+  "activationEvents": [
+    "onLanguage:gcode",
+    "onCommand:extension.formatDocument"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/grandixximo/Linuxcnc-G-code.git"
+  },
+"publisher": "LucaToniolo"
+}
+

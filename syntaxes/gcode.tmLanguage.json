@@ -1,0 +1,153 @@
+{
+	"scopeName": "source.gcode",
+	"patterns": [
+	  {
+		"name": "support.debug.message.gcode",
+		"match": "(?i)\\((MSG|DEBUG|PRINT|LOG),.*?\\)"
+	  },
+	  {
+		"name": "comment.line.semicolon.gcode",
+		"match": ";.*"
+	  },
+	  {
+		"name": "comment.block.gcode",
+		"begin": "\\(",
+		"end": "\\)"
+	  },
+	  {
+		"name": "keyword.control.gcode",
+		"match": "(?i)(G)(\\s*-?\\d+(\\.\\d+)?)?",
+		"captures": {
+		  "1": {
+			"name": "keyword.control.gcode"
+		  }
+		}
+	  },
+	  {
+		"name": "string.regexp.mcode",
+		"match": "(?i)(M)(\\s*-?\\d+(\\.\\d+)?)?"
+	  },
+	  {
+		"name": "entity.name.function.system.gcode",
+		"match": "(?i)#\\d+",
+		"captures": {
+		  "0": {
+			"name": "entity.name.function.system"
+		  }
+		}
+	  },
+	  {
+		"name": "variable.language.global.gcode",
+		"match": "(?i)#<_[\\-\\w.]+>",
+		"captures": {
+		  "0": {
+			"name": "variable.language.global"
+		  }
+		}
+	  },
+	  {
+		"name": "constant.numeric.local.gcode",
+		"match": "(?i)#<[\\-\\w.]+>",
+		"captures": {
+		  "0": {
+			"name": "constant.numeric.local"
+		  }
+		}
+	  },
+	  {
+		"name": "support.type.o-word.gcode",
+		"match": "(?i)\\bO(?:\\d+|<[\\-\\w.]+>|\\b)"
+	  },
+	  {
+		"name": "keyword.control.flow.gcode",
+		"match": "(?i)(ELSEIF|IF|THEN|ENDIF|WHILE|DO|ENDWHILE|SUB|ENDSUB|CALL|RETURN|ELSE|BREAK|END|CONTINUE|EXISTS|REPEAT|ENDREPEAT)(\\s*-?\\d+(\\.\\d+)?)?"
+	  },
+	  {
+		"name": "meta.operator-expression.gcode",
+		"match": "(?i)(-?\\d+(?:\\.\\d+)?)?\\s*(EQ|NE|GT|GE|LT|LE|MOD|AND|OR|XOR|=|\\+|\\-|\\*\\*|\\*|\\/|ATAN|ABS|ACOS|ASIN|COS|EXP|FIX|FUP|ROUND|LN|SIN|SQRT|TAN)\\s*(-?\\d+(?:\\.\\d+)?)?",
+		"captures": {
+		  "1": {
+			"name": "constant.numeric.gcode"
+		  },
+		  "2": {
+			"name": "support.type.gcode"
+		  },
+		  "3": {
+			"name": "constant.numeric.gcode"
+		  }
+		}
+	  },
+	  {
+		"name": "constant.numeric.gcode",
+		"match": "(?i)-?\\d+(?:\\.\\d+)?"
+	  },
+	  {
+		"name": "support.type.gcode",
+		"match": "(?i)\\b(?:EQ|NE|GT|LT|GE|LE)\\b"
+	  },
+	  {
+		"name": "support.type.property-name.gcode.x",
+		"match": "(?i)(X|Q|D|I)(\\s*-?\\d+(\\.\\d+)?)?",
+		"captures": {
+		  "1": {
+			"name": "support.type.property-name"
+		  }
+		}
+	  },
+	  {
+		"name": "constant.numeric.gcode.y",
+		"match": "(?i)(Y|L|J|F)(\\s*-?\\d+(\\.\\d+)?)?",
+		"captures": {
+		  "1": {
+			"name": "constant.numeric"
+		  }
+		}
+	  },
+	  {
+		"name": "string.quoted.double.gcode.z",
+		"match": "(?i)(Z|E|K|U)(\\s*-?\\d+(\\.\\d+)?)?",
+		"captures": {
+		  "1": {
+			"name": "string.quoted.double"
+		  }
+		}
+	  },
+	  {
+		"name": "string.regexp.gcode.a",
+		"match": "(?i)(A|V|R)(\\s*-?\\d+(\\.\\d+)?)?",
+		"captures": {
+		  "1": {
+			"name": "string.regexp"
+		  }
+		}
+	  },
+	  {
+		"name": "variable.language.gcode.b",
+		"match": "(?i)(B|P)(\\s*-?\\d+(\\.\\d+)?)?",
+		"captures": {
+		  "1": {
+			"name": "variable.language"
+		  }
+		}
+	  },
+	  {
+		"name": "entity.name.function.gcode.c",
+		"match": "(?i)(C|N|H)(\\s*-?\\d+(\\.\\d+)?)?",
+		"captures": {
+		  "1": {
+			"name": "entity.name.function"
+		  }
+		}
+	  },
+	  {
+		"name": "support.type.gcode.w",
+		"match": "(?i)(W|S|T)(\\s*-?\\d+(\\.\\d+)?)?",
+		"captures": {
+		  "1": {
+			"name": "support.type"
+		  }
+		}
+	  }
+	]
+  }
+  
