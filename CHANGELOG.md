@@ -19,7 +19,7 @@ All notable changes to this project will be documented in this file.
 - **Minor Fixes**:
   - Updated debug logging to print the entire AST for troubleshooting.
   - Fixed minor spacing and alignment issues in output.
-  
+
 ## [1.0.0] - 2025-02-10
 
 ### Initial Release
