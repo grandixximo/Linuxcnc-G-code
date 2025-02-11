@@ -83,8 +83,6 @@ class Parser {
     return statements;
   }
 
-
-  // Method to handle concatenating unknown tokens until EOL or EOF
   // Method to handle concatenating unknown tokens until EOL or EOF
   concatenateUnknownTokens() {
     const tk = this.peekToken();
@@ -110,10 +108,6 @@ class Parser {
     // Return the UnknownToken directly (no nested structure)
     return unknownToken;
   }
-
-
-
-
 
   parseStatement() {
     const tk = this.peekToken();
@@ -167,8 +161,6 @@ class Parser {
     return commandLine;
   }
 
-
-
   // Detect #var =, <param> =, etc.
   isAssignmentStart() {
     return (
@@ -198,27 +190,39 @@ class Parser {
   parseOFlowStatement() {
     // 1. consume 'o'
     const oToken = this.nextToken();
-
-    // 2. parse the label expression (e.g. `<my-label>`, or #var, etc.)
+    // 2. parse the label expression
     const label = this.parseValueExpression();
-
-    // 3. see if next token is recognized flow-control (IF, SUB, etc.)
+    // 3. see if next token is recognized flow-control
     const keywordToken = this.peekToken();
     if (!keywordToken || keywordToken.type !== TokenType.FlowControl) {
       // Not recognized => treat it as an OStatement with empty keyword
       return this.createOStatement(oToken, label, "", this.parseCommandLine());
     }
-
     // 4. read the flow-control keyword
-    const originalKeyword = this.nextToken().value;  // preserve user’s original case
+    const originalKeyword = this.nextToken().value;  
     const upperKeyword = originalKeyword.toUpperCase();
-
-    // If it’s e.g. `SUB`, `IF` => parse a block
+  
+    // If it's a "block" style flow keyword (IF, WHILE, SUB, etc.):
     if (FLOW_CONTROL_PAIRS[upperKeyword]) {
+      // e.g. `IF => ENDIF`
       return this.parseFlowBlock(oToken, label, upperKeyword, originalKeyword);
     }
-
-    // Otherwise just treat it as e.g. `o <label> return`, etc.
+  
+    // ELSEIF is a bit special: either handle it in parseFlowBlock 
+    // or do something custom. E.g. treat it like "IF" internally:
+    if (upperKeyword === "ELSEIF") {
+      // parse a bracketed expression if present
+      let condition = null;
+      if (this.peekToken()?.type === TokenType.BracketOpen) {
+        condition = this.parseBracketedExpression();
+      }
+      // For simplicity, treat ELSEIF as an OStatement for now,
+      // or also feed it into parseFlowBlock if you want nested behavior.
+      return this.createOStatement(oToken, label, originalKeyword, null, condition);
+    }
+  
+    // For other flow controls (like "RETURN", "CALL", etc.), 
+    // just parse it as an OStatement with a possible command line
     return this.createOStatement(oToken, label, originalKeyword, this.parseCommandLine());
   }
 
@@ -226,23 +230,23 @@ class Parser {
   parseFlowBlock(oToken, label, openKeyword, originalKeyword) {
     const block = {
       type: "FlowBlock",
-      openKeyword: originalKeyword, // store the user’s original case
+      openKeyword: originalKeyword, 
       header: { oToken, label, keyword: originalKeyword },
       body: [],
       endHeader: null
     };
-
+  
     // Keep collecting statements until we find the matching close
     this.iterationSafe(() => {
-      const closeKeyword = FLOW_CONTROL_PAIRS[openKeyword]; // e.g. "IF" => "ENDIF"
+      const closeKeyword = FLOW_CONTROL_PAIRS[openKeyword]; 
       if (this.isClosingStatement(label, closeKeyword)) {
         block.endHeader = this.parseClosingHeader();
-        return false; // stop parsing this block
+        return false; 
       }
       block.body.push(this.parseStatement());
       return true;
     });
-
+  
     return block;
   }
 
@@ -521,19 +525,25 @@ class Parser {
   }
 
   // Build an OStatement node, e.g. `o <my-label> RETURN`
-  createOStatement(oToken, label, keyword, commands) {
+  createOStatement(oToken, label, keyword, commands, condition = null) {
     return {
       type: "OStatement",
-      header: { oToken, label, keyword },
-      commands
+      header: { oToken, label, keyword, condition },
+      commands: commands || { type: "CommandLine", commands: [] }
     };
-  }
+  }  
 }
 
 // Helper function for external usage
 function parseGCode(input) {
   const parser = new Parser(input);
-  return parser.parse();
+  const resultAst = parser.parse();
+
+  // Debug: Print the entire AST
+  console.log("=== DEBUG AST ===");
+  console.log(JSON.stringify(resultAst, null, 2));
+
+  return resultAst;
 }
 
 module.exports = { Parser, parseGCode };

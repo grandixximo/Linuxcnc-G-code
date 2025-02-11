@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file. 
 
+## [1.0.1] - 2025-02-11
+
+### Parser & Formatter Enhancements
+
+- **Improved Parser**:
+  - Added `FlowBlock` logic for `IF`-style statements, enabling proper nesting of statements until the matching `ENDIF`.
+  - Updated handling of `ELSEIF` to attach bracketed conditions (`[#5399 EQ 2]`) directly to the flow statement rather than as separate commands.
+  - Ensured unknown tokens are concatenated and reported more clearly.
+
+- **Improved Formatter**:
+  - Indentation logic now correctly reflects nested blocks for `IF/ELSEIF/ELSE/ENDIF`.
+  - Eliminated extra blank lines by removing redundant newlines in the `OStatement` printing logic.
+  - Properly retains bracketed expressions in `elseif [condition]` lines without losing them.
+
+- **Minor Fixes**:
+  - Updated debug logging to print the entire AST for troubleshooting.
+  - Fixed minor spacing and alignment issues in output.
+  
 ## [1.0.0] - 2025-02-10
 
 ### Initial Release
