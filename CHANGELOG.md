@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file. 
 
+## [1.0.2] - 2025-02-12
+
+### **Enhanced Parameter Support**
+
+- **HAL & INI Parameter Parsing:**
+  - Added support for `#<_hal[...]>` and `#<_ini[...]>` parameter syntax.
+  - Improved regex handling to correctly recognize parameters with embedded square brackets and trailing identifiers (e.g., `#<_ini[setup]xpos>`, `#<_hal[motion-controller.time]>`).
+
+- **Formatter Updates:**
+  - Ensured parameters within bracket notation remain correctly spaced and formatted.
+  - Improved handling of HAL and INI parameters when used inside expressions and conditions.
+
+- **Bug Fixes & Refinements:**
+  - Fixed an issue where `#<param[xyz]>` was sometimes not detected correctly.
+  - Updated syntax highlighting rules to properly categorize HAL and INI parameters under `variable.language.global.gcode`.
+
+
 ## [1.0.1] - 2025-02-11
 
 ### Parser & Formatter Enhancements

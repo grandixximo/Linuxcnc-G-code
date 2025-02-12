@@ -38,7 +38,7 @@
 	  },
 	  {
 		"name": "variable.language.global.gcode",
-		"match": "(?i)#<_[\\-\\w.]+>",
+		"match": "(?i)#<_[\\-\\w.]+(?:\\[[\\-\\w.]+\\])?[\\-\\w.]*>",
 		"captures": {
 		  "0": {
 			"name": "variable.language.global"
@@ -47,7 +47,7 @@
 	  },
 	  {
 		"name": "constant.numeric.local.gcode",
-		"match": "(?i)#<[\\-\\w.]+>",
+		"match": "(?i)#<[\\-\\w.]+(?:\\[[\\-\\w.]+\\])?[\\-\\w.]*>",
 		"captures": {
 		  "0": {
 			"name": "constant.numeric.local"
