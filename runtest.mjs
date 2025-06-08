@@ -2,6 +2,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { parseGCode } from './parser.cjs';
+import { formatASTToString } from './formatter.js';
 
 // Determine current directory
 const __filename = fileURLToPath(import.meta.url);
@@ -31,7 +32,7 @@ async function runTests() {
 
       const inputContent = await fs.readFile(inputPath, 'utf-8');
       const ast = parseGCode(inputContent);
-      const currentOutput = JSON.stringify(ast, null, 2);
+      const currentOutput = formatASTToString(ast);
 
       // Write the current output to file.
       await fs.writeFile(currentOutputPath, currentOutput, 'utf-8');

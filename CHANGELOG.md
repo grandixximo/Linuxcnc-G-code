@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. 
 
+## [1.0.3] - 2025-02-13
+
+### Formatter Fixes & Improvements
+
+- **Inline Comment Formatting:**
+  - Fixed an issue where inline comments following `IF`, `ELSEIF`, or other control statements were pushed to the next line with incorrect indentation. Comments now remain correctly on the same line.
+  - Corrected spacing for comments that appear on the same line as a statement to ensure a single, consistent space.
+- **Node.js Compatibility:**
+  - Made the formatter compatible with a standard Node.js environment, allowing it to be used in test runners and other command-line tools without causing a `vscode module not found` error.
+
 ## [1.0.2] - 2025-02-12
 
 ### **Enhanced Parameter Support**

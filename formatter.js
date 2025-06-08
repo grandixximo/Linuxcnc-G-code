@@ -1,4 +1,9 @@
-const vscode = require('vscode');
+let vscode;
+try {
+  vscode = require('vscode');
+} catch (e) {
+  // Not running in VS Code, ignore
+}
 const { parseGCode } = require('./parser.cjs');
 
 function formatASTToString(ast, indent = 0) {
@@ -38,11 +43,17 @@ function formatStatements(statements, indent) {
     const current = statements[i];
     const next = statements[i + 1];
 
-    // Special case: Assignment immediately followed by a Comment => put them on the same line
-    if (current?.type === "Assignment" && next?.type === "Comment") {
-      const assignmentStr = formatAssignment(current, indent);
-      out += assignmentStr + " " + next.value;
-      i += 2;
+    const isCommentable =
+      current?.type === "Assignment" ||
+      current?.type === "OStatement" ||
+      current?.type === "FlowBlock" ||
+      current?.type === "CommandLine";
+
+    // Special case: a statement immediately followed by a Comment => put them on the same line
+    if (isCommentable && next?.type === "Comment") {
+      const statementStr = formatASTToString(current, indent).trimEnd();
+      out += statementStr + " " + next.value;
+      i += 2; // Consume both statement and comment
       continue;
     }
 
@@ -54,12 +65,10 @@ function formatStatements(statements, indent) {
 }
 
 function formatFlowBlock(node, indent) {
-  // We only do special logic for "IF" blocks
   const lowerKW = node.openKeyword.toLowerCase();
   const isIfBlock = (lowerKW === "if");
 
-  // Non-IF block or empty body => old/standard approach
-  if (!isIfBlock || !node.body || node.body.length === 0) {
+  if (!isIfBlock) {
     let out = formatOHeaderString(node.header, indent);
     out += formatStatements(node.body || [], indent + 1);
     if (node.endHeader) {
@@ -69,14 +78,18 @@ function formatFlowBlock(node, indent) {
   }
 
   // === IF block with special "ELSE" / "ELSEIF" handling ===
-  // 1) Print IF and the first statement on the same line
-  //    e.g. o<some-label> if [#5399 EQ 2]
-  const [firstStmt, ...rest] = node.body;
+  // 1) Print IF and the condition on the same line
   let out = "";
-  
-  // We'll reuse a helper to print "o<lbl> if" plus an optional expression:
-  const ifLine = formatOControlLine(node.header, firstStmt, indent);
+  const ifLine = formatOControlLine(node.header, node.header.condition, indent);
   out += ifLine;
+
+  const body = [...(node.body || [])];
+
+  // If the first statement in the body is a comment, it's likely an inline comment for the 'if' line
+  if (body.length > 0 && body[0].type === 'Comment') {
+    const comment = body.shift(); // Remove comment from body
+    out += " " + comment.value.trim();
+  }
 
   // 2) We'll keep collecting statements into "currentBlock" for the THEN portion
   let currentBlock = [];
@@ -90,43 +103,25 @@ function formatFlowBlock(node, indent) {
     }
   }
 
-  while (i < rest.length) {
-    const stmt = rest[i];
+  while (i < body.length) {
+    const stmt = body[i];
     if (stmt.type === "OStatement") {
-      // Check if it's else/elseif
       const kw = stmt.header.keyword.toLowerCase();
       if (kw === "else" || kw === "elseif") {
-        // Flush the THEN block at indent+1
         flushBlock(indent + 1);
-
-        // Now we want to print the else/elseif line at the same indent
-        // BUT if it's an elseif, we might also want to attach an expression
-        // (the bracket expression) on the same line.
-        //
-        // So let's look ahead: if the next statement is a bracket or expression,
-        // we tack it onto the "control line" (like elseif [#5399 EQ 2]).
-        //
-        let maybeExpr = null;
-        if (kw === 'elseif' && (i + 1) < rest.length) {
-          const nextStmt = rest[i + 1];
-          // Adjust the condition below if your parser returns expressions differently
-          if (isExpressionLike(nextStmt)) {
-            maybeExpr = nextStmt;
-            i++; // We'll consume that statement so it doesn't appear in the main body
-          }
+        out += formatOControlLine(stmt.header, stmt.header.condition, indent);
+        
+        if (stmt.commands && stmt.commands.commands.length > 0) {
+            const cmdStr = formatCommandLine(stmt.commands, 0).trim();
+            if (cmdStr.length > 0) {
+                out += " " + cmdStr;
+            }
         }
 
-        // Print the else/elseif line
-        out += formatOControlLine(stmt.header, maybeExpr, indent);
-
-        // The block that follows goes to indent+1, until we hit another else/elseif or the end
         i++;
-        // We'll gather everything after this line in currentBlock again
-        // until next else/elseif or the end.
         continue;
       }
     }
-    // If it's not else/elseif, just accumulate it
     currentBlock.push(stmt);
     i++;
   }
@@ -166,7 +161,7 @@ function formatOControlLine(header, firstExpr, indent) {
 
   // If there's an expression (like [#5399 EQ 2]), append it on same line
   if (firstExpr) {
-    let exprStr = formatASTToString(firstExpr, 0).trimStart();
+    let exprStr = formatExpressionString(firstExpr).trimStart();
     if (exprStr.length > 0) {
       line += " " + exprStr;
     }
@@ -175,25 +170,11 @@ function formatOControlLine(header, firstExpr, indent) {
   return line; // no trailing newline
 }
 
-/**
- * Quick helper to decide if a statement is basically an expression we want on the elseif line.
- * Adjust the type checks to match however your AST is shaped.
- */
-function isExpressionLike(stmt) {
-  return (
-    stmt.type === "BracketedExpression" ||
-    stmt.type === "BinaryExpression" ||
-    stmt.type === "UnaryExpression" ||
-    // etc. whatever else your parser might produce
-    false
-  );
-}
-
 // ------------------------------------------------------------------
 // OSTATEMENT FORMATTING LOGIC
 // ------------------------------------------------------------------
 function formatOStatement(node, indent) {
-  // If it’s an IF/ELSEIF/ELSE/ENDIF, we might want to indent a block of statements
+  // If it's an IF/ELSEIF/ELSE/ENDIF, we might want to indent a block of statements
   // until the matching else/endif. But that requires scanning forward. 
   // For simplicity, we handle it inline here.
 
@@ -211,7 +192,7 @@ function formatOStatement(node, indent) {
     line += " " + formatExpressionString(condition);
   }
 
-  // If it's not IF/ELSEIF/ELSE, or if it’s a single-line statement like "o<lbl> call",
+  // If it's not IF/ELSEIF/ELSE, or if it's a single-line statement like "o<lbl> call",
   // we might have commands (like parameters after the statement).
   let out = line;
   
@@ -287,13 +268,14 @@ function formatCommandElement(cmd) {
 }
 
 function formatOHeaderString(header, indent) {
-  let line = indentStr(indent);
-  // header.oToken.value is usually "o"
-  line += header.oToken.value;   
+  let line = indentStr(indent) + header.oToken.value;
   if (header.label?.value) {
-    line += header.label.value;  // no extra space => "o<my-label>"
+    line += header.label.value;
   }
   line += " " + header.keyword.toLowerCase();
+  if (header.condition) {
+    line += " " + formatExpressionString(header.condition);
+  }
   return line;
 }
 
@@ -327,22 +309,24 @@ function indentStr(indent) {
   return "  ".repeat(indent);
 }
 
-function activate(context) {
-  const provider = vscode.languages.registerDocumentFormattingEditProvider('gcode', {
-    provideDocumentFormattingEdits(document) {
-      const source = document.getText();
-      const ast = parseGCode(source);
-      const formatted = formatASTToString(ast);
-      const fullRange = new vscode.Range(
-        document.positionAt(0),
-        document.positionAt(source.length)
-      );
-      return [vscode.TextEdit.replace(fullRange, formatted)];
-    }
-  });
-  context.subscriptions.push(provider);
+if (vscode) {
+  function activate(context) {
+    const provider = vscode.languages.registerDocumentFormattingEditProvider('gcode', {
+      provideDocumentFormattingEdits(document) {
+        const source = document.getText();
+        const ast = parseGCode(source);
+        const formatted = formatASTToString(ast);
+        const fullRange = new vscode.Range(
+          document.positionAt(0),
+          document.positionAt(source.length)
+        );
+        return [vscode.TextEdit.replace(fullRange, formatted)];
+      }
+    });
+    context.subscriptions.push(provider);
+  }
+  function deactivate() { }
+  module.exports = { activate, deactivate, formatASTToString };
+} else {
+  module.exports = { formatASTToString };
 }
-
-function deactivate() { }
-
-module.exports = { activate, deactivate };

@@ -205,20 +205,22 @@ class Parser {
     // If it's a "block" style flow keyword (IF, WHILE, SUB, etc.):
     if (FLOW_CONTROL_PAIRS[upperKeyword]) {
       // e.g. `IF => ENDIF`
-      return this.parseFlowBlock(oToken, label, upperKeyword, originalKeyword);
+      let condition = null;
+      // For IF and WHILE, parse a condition if it exists on the same line
+      if ((upperKeyword === 'IF' || upperKeyword === 'WHILE') && this.isValueExpressionStart()) {
+          condition = this.parseValueExpression();
+      }
+      return this.parseFlowBlock(oToken, label, upperKeyword, originalKeyword, condition);
     }
   
     // ELSEIF is a bit special: either handle it in parseFlowBlock 
     // or do something custom. E.g. treat it like "IF" internally:
     if (upperKeyword === "ELSEIF") {
-      // parse a bracketed expression if present
       let condition = null;
-      if (this.peekToken()?.type === TokenType.BracketOpen) {
-        condition = this.parseBracketedExpression();
+      if (this.isValueExpressionStart()) {
+        condition = this.parseValueExpression();
       }
-      // For simplicity, treat ELSEIF as an OStatement for now,
-      // or also feed it into parseFlowBlock if you want nested behavior.
-      return this.createOStatement(oToken, label, originalKeyword, null, condition);
+      return this.createOStatement(oToken, label, originalKeyword, this.parseCommandLine(), condition);
     }
   
     // For other flow controls (like "RETURN", "CALL", etc.), 
@@ -227,11 +229,11 @@ class Parser {
   }
 
   // parse e.g. `o <label> if ... o <label> endif`
-  parseFlowBlock(oToken, label, openKeyword, originalKeyword) {
+  parseFlowBlock(oToken, label, openKeyword, originalKeyword, condition = null) {
     const block = {
       type: "FlowBlock",
       openKeyword: originalKeyword, 
-      header: { oToken, label, keyword: originalKeyword },
+      header: { oToken, label, keyword: originalKeyword, condition },
       body: [],
       endHeader: null
     };
