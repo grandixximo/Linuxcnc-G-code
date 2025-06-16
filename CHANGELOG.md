@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. 
 
+## [1.0.4] - 2025-02-13
+
+### Whitespace Preservation Enhancement
+
+- **Whitespace-Only Line Preservation:**
+  - Fixed tokenizer to preserve whitespace-only lines (lines containing only spaces and/or tabs) during formatting.
+  - Modified `preprocessInput()` method to identify and preserve whitespace-only lines while still removing unnecessary whitespace from regular code lines.
+  - Ensures that blank lines with indentation are maintained in the formatted output, preserving the original code structure and readability.
+
+- **Improved Code Structure:**
+  - Whitespace-only lines are now correctly tokenized and passed through the formatter unchanged.
+  - No impact on existing functionality - regular whitespace handling remains the same for non-whitespace-only lines.
+
 ## [1.0.3] - 2025-02-13
 
 ### Formatter Fixes & Improvements

@@ -73,8 +73,27 @@ class Tokenizer {
         let cleanedInput = '';
         let inComment = false;
 
+        // First pass: identify whitespace-only lines
+        const lines = this.input.split(/\r\n|\r|\n/);
+        const whitespaceOnlyLines = new Set();
+        
+        for (let lineIndex = 0; lineIndex < lines.length; lineIndex++) {
+            const line = lines[lineIndex];
+            if (line.length > 0 && /^\s+$/.test(line)) {
+                whitespaceOnlyLines.add(lineIndex);
+            }
+        }
+
+        // Second pass: process character by character, preserving whitespace-only lines
+        let currentLine = 0;
+        
         for (let i = 0; i < this.input.length; i++) {
             const ch = this.input[i];
+
+            // Track line numbers
+            if (ch === '\n' || (ch === '\r' && this.input[i + 1] !== '\n')) {
+                currentLine++;
+            }
 
             // Start comment on ';' or '(' (unless "()")
             if (!inComment && (ch === ';' || (ch === '(' && this.input[i + 1] !== ')'))) {
@@ -97,8 +116,13 @@ class Tokenizer {
             } else if (ch === '\n' || ch === '\r') {
                 cleanedInput += ch;
             } else if (ch === '\t' || ch === ' ') {
-                // skip all whitespace outside of comment
-                continue;
+                // Preserve whitespace if this is a whitespace-only line
+                if (whitespaceOnlyLines.has(currentLine)) {
+                    cleanedInput += ch;
+                } else {
+                    // Otherwise skip whitespace as before
+                    continue;
+                }
             } else {
                 cleanedInput += ch;
             }

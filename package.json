@@ -2,7 +2,7 @@
   "name": "linuxcnc-g-code",
   "displayName": "LinuxCNC G-Code",
   "description": "Syntax Highlighting for LinuxCNC RS274 NGC G-Code with subroutine support",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "engines": {
     "vscode": "^1.96.0"
   },
