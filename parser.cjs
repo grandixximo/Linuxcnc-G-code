@@ -24,11 +24,11 @@ const FLOW_KEYWORDS = new Set([
 ]);
 
 class Parser {
-  constructor(inputOrTokenizer) {
+  constructor(inputOrTokenizer, options = {}) {
     this.initTokenizer(inputOrTokenizer);
     this.pos = 0;
     this.errors = [];
-    this.MAX_ITERATIONS = 10000;
+    this.MAX_ITERATIONS = this.calculateMaxIterations(options);
   }
 
   initTokenizer(inputOrTokenizer) {
@@ -37,6 +37,20 @@ class Parser {
     } else {
       this.tokens = inputOrTokenizer.tokenize();
     }
+  }
+
+  calculateMaxIterations(options = {}) {
+    // Use VSCode document line count if available
+    if (options.vscodeDocument && options.vscodeDocument.lineCount) {
+      const lineCount = options.vscodeDocument.lineCount;
+      const dynamicLimit = Math.max(1000, Math.floor(lineCount * 1.5));
+      console.log(`Parser: File has ${lineCount} lines, setting iteration limit to ${dynamicLimit}`);
+      return dynamicLimit;
+    }
+    
+    // Fallback: use fixed 100k limit if no VSCode document
+    console.log(`Parser: No VSCode document available, using fixed limit: 100000`);
+    return 100000;
   }
 
   // Peek a token at offset, or null if out of range
@@ -537,8 +551,8 @@ class Parser {
 }
 
 // Helper function for external usage
-function parseGCode(input) {
-  const parser = new Parser(input);
+function parseGCode(input, options = {}) {
+  const parser = new Parser(input, options);
   const resultAst = parser.parse();
 
   // Debug: Print the entire AST

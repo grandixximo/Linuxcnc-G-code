@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file. 
 
+## [1.0.5] - 2025-01-27
+
+### Performance Optimization & VSCode Integration
+
+- **Dynamic Iteration Limits:**
+  - Replaced fixed 10,000 iteration limit with dynamic calculation based on file size.
+  - Uses VSCode's `document.lineCount` for instant, zero-CPU line counting when available.
+  - Sets iteration limit to 1.5x the number of lines (minimum 1,000, maximum 100,000).
+  - Fallback to 100,000 iterations when VSCode document is not available.
+
+- **VSCode Integration:**
+  - Parser now receives VSCode document object for efficient line count access.
+  - Eliminates expensive token scanning for line counting in VSCode environment.
+  - Significant performance improvement for large G-code files.
+
+- **Simplified Architecture:**
+  - Removed manual line count calculation and caching complexity.
+  - Streamlined parser constructor to focus on VSCode integration.
+  - Cleaner, more maintainable codebase.
+
 ## [1.0.4] - 2025-02-13
 
 ### Whitespace Preservation Enhancement

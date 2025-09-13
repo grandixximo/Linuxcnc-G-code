@@ -314,7 +314,8 @@ if (vscode) {
     const provider = vscode.languages.registerDocumentFormattingEditProvider('gcode', {
       provideDocumentFormattingEdits(document) {
         const source = document.getText();
-        const ast = parseGCode(source);
+        // Pass VSCode document to parser for efficient line count
+        const ast = parseGCode(source, { vscodeDocument: document });
         const formatted = formatASTToString(ast);
         const fullRange = new vscode.Range(
           document.positionAt(0),
