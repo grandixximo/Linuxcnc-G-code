@@ -1,6 +1,15 @@
 # Changelog
 
-All notable changes to this project will be documented in this file. 
+All notable changes to this project will be documented in this file.
+
+## [1.0.6] - 2025-12-29
+
+### Indirect Variable Dereferencing Support
+
+- **Double Hashtag Parameter Parsing:**
+  - Added support for indirect variable dereferencing using `##<varname>` syntax.
+  - Parameters with double hashtag prefix are now correctly parsed and included in the TextMate scope as `constant.numeric`.
+  - Thanks to @gbgky for the contribution!
 
 ## [1.0.5] - 2025-01-27
 
