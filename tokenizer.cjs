@@ -244,7 +244,7 @@ class Tokenizer {
     }
 
     tryReadParameter() {
-        // <...> or #<...> or #NNN style parameters
+        // <...> or ##<...> or #<...> or ##NNN or #NNN style parameters
         if (this.peek() === '<') {
             let param = this.nextChar();
             while (!this.eof() && this.peek() !== '>' && !/\r|\n/.test(this.peek())) {
@@ -254,6 +254,10 @@ class Tokenizer {
             return this.createToken(TokenType.Parameter, param);
         } else if (this.peek() === '#') {
             let param = this.nextChar();
+            // Check for double ## (indirect/dereferencing)
+            if (this.peek() === '#') {
+                param += this.nextChar();
+            }
             if (this.peek() === '<') {
                 param += this.nextChar();
                 while (!this.eof() && this.peek() !== '>' && !/\r|\n/.test(this.peek())) {

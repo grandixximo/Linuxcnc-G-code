@@ -14,7 +14,7 @@ Based on https://linuxcnc.org/docs/html/gcode.html
 - **Control flow keywords** (e.g., `IF`, `WHILE`, `SUB`, `ENDIF`)
 - **Operators** (e.g., `+`, `-`, `*`, `/`)
 - **Numeric constants** (e.g., `100`, `5.5`)
-- **Variables** (e.g., `#100`, `<parameter>`)
+- **Variables** (e.g., `#100`, `#<parameter>`, `##<indirect>`)
 - **Comments** (single-line using `;`, block comments using `(` and `)`)
 - **Functions** (e.g., `SIN`, `COS`, `ATAN`)
 
@@ -200,13 +200,16 @@ A **value expression** follows strict rules and always comes after either:
 1. **A word expression** (e.g., `G`, `X`, `F`, etc.).  
 2. **A flow word** (`IF`, `WHILE`, `CALL`, etc.), but in this case, it **must be enclosed in brackets (`[...]`)**.
 
-A **value expression** must be one of the following:  
+A **value expression** must be one of the following:
 
-1. **A single value:**  
-   - **Numbers:** `1`, `-10.5`  
-   - **Parameters:** `#1`, `#<test>`  
-2. **A function call:**  
-   - `ABS[#10]`, `SQRT[#3]`, `SIN[#2]`, etc.  
+1. **A single value:**
+   - **Numbers:** `1`, `-10.5`
+   - **Parameters:**
+     - **Numbered:** `#1`, `#100`, `#5399`
+     - **Named:** `#<test>`, `#<_x>`, `#<_hal[...]>`
+     - **Indirect (dereferenced):** `##<varname>` - uses the value of `#<varname>` as the parameter number
+2. **A function call:**
+   - `ABS[#10]`, `SQRT[#3]`, `SIN[#2]`, etc.
 3. **A bracketed expression (`[...]`):**  
    - **Contains a valid value expression**  
    - **Can contain other bracketed expressions (nested expressions allowed)**  
@@ -238,6 +241,8 @@ A **value expression** must be one of the following:
 G-1               ; ✅ Word `G` followed by a valid unary number value expression
 X---10            ; ✅ Multiple unary negations resolve to `-10`
 F#100             ; ✅ `F` followed by a valid parameter value expression
+G##<index>        ; ✅ `G` followed by an indirect parameter (dereferenced variable)
+X[##<var> + 5]    ; ✅ `X` followed by binary operation using indirect parameter
 G[SQRT[4]]        ; ✅ `G` followed by a valid bracketed function call
 G[#1 - 1]         ; ✅ `G` followed by a binary operation inside brackets
 G[-#1*1]X--+ABS[-10]    ; ✅ Unary and binary operators combined

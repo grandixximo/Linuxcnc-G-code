@@ -28,6 +28,21 @@
 		"match": "(?i)(M)(\\s*-?\\d+(\\.\\d+)?)?"
 	  },
 	  {
+		"name": "entity.name.function.system.gcode.indirect",
+		"match": "(?i)(#)(#)(\\d+)",
+		"captures": {
+		  "1": {
+			"name": "support.type.gcode"
+		  },
+		  "2": {
+			"name": "entity.name.function.system"
+		  },
+		  "3": {
+			"name": "entity.name.function.system"
+		  }
+		}
+	  },
+	  {
 		"name": "entity.name.function.system.gcode",
 		"match": "(?i)#\\d+",
 		"captures": {
@@ -37,11 +52,41 @@
 		}
 	  },
 	  {
+		"name": "variable.language.global.gcode.indirect",
+		"match": "(?i)(#)(#)(<_[\\-\\w.]+(?:\\[[\\-\\w.]+\\])?[\\-\\w.]*>)",
+		"captures": {
+		  "1": {
+			"name": "support.type.gcode"
+		  },
+		  "2": {
+			"name": "variable.language.global"
+		  },
+		  "3": {
+			"name": "variable.language.global"
+		  }
+		}
+	  },
+	  {
 		"name": "variable.language.global.gcode",
-		"match": "(?i)##?<_[\\-\\w.]+(?:\\[[\\-\\w.]+\\])?[\\-\\w.]*>",
+		"match": "(?i)#<_[\\-\\w.]+(?:\\[[\\-\\w.]+\\])?[\\-\\w.]*>",
 		"captures": {
 		  "0": {
 			"name": "variable.language.global"
+		  }
+		}
+	  },
+	  {
+		"name": "constant.numeric.local.gcode.indirect",
+		"match": "(?i)(#)(#)(<[\\-\\w.]+(?:\\[[\\-\\w.]+\\])?[\\-\\w.]*>)",
+		"captures": {
+		  "1": {
+			"name": "support.type.gcode"
+		  },
+		  "2": {
+			"name": "constant.numeric.local"
+		  },
+		  "3": {
+			"name": "constant.numeric.local"
 		  }
 		}
 	  },
