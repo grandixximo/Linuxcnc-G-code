@@ -42,7 +42,7 @@ Based on https://linuxcnc.org/docs/html/gcode.html
 
 ## Usage
 
-1. Open your G-code file (`.gcode`, `.nc`, or `.cnc`) in Visual Studio Code.
+1. Open your Linuxcnc G-code and subroutine files (`.ngc`) in Visual Studio Code.
 2. The syntax highlighting will be automatically applied based on the contents of the file.
 3. To format the document, either:
    - Press `Shift + Alt + F` (Windows/Linux) or `Shift + Option + F` (Mac) to format the entire file.
