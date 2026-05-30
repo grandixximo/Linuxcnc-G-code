@@ -35,7 +35,7 @@ Based on https://linuxcnc.org/docs/html/gcode.html
 
 ### Install via VSIX (Manual Installation)
 
-1. Download the `.vsix` file from the [extension release page](https://example.com/releases).
+1. Download the `.vsix` file from the [extension release page](https://github.com/grandixximo/Linuxcnc-G-code/releases).
 2. In **Visual Studio Code**, go to the **Extensions** view.
 3. Click the `...` (three-dot) menu and select **Install from VSIX...**.
 4. Select the downloaded `.vsix` file.
